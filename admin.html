@@ -1,42 +1,423 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <title>Sistem Yönetimi</title>
-    <style>
-        body { background: #080c14; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .panel { background: #141d2e; padding: 30px; border-radius: 20px; border: 1px solid #00d4ff; width: 350px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; background: #080c14; border: 1px solid #1f2937; color: white; border-radius: 8px; }
-        button { width: 100%; padding: 12px; background: #00d4ff; color: #080c14; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        h2 { color: #00d4ff; margin-top: 0; }
-    </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f0f2f5; }
+
+    /* LOGIN */
+    #login-page {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; background: #1a1a2e;
+    }
+    .login-box {
+      background: white; padding: 40px; border-radius: 12px;
+      width: 340px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .login-box h2 { margin-bottom: 24px; color: #1a1a2e; font-size: 22px; }
+    .login-box input {
+      width: 100%; padding: 10px 14px; margin-bottom: 14px;
+      border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none;
+    }
+    .login-box input:focus { border-color: #4f46e5; }
+    .login-box button {
+      width: 100%; padding: 11px; background: #4f46e5; color: white;
+      border: none; border-radius: 8px; font-size: 15px; cursor: pointer;
+    }
+    .login-box button:hover { background: #3730a3; }
+    .login-error { color: red; font-size: 12px; margin-top: 8px; display: none; }
+
+    /* PANEL */
+    #panel-page { display: none; }
+
+    .sidebar {
+      width: 220px; background: #1a1a2e; color: white;
+      position: fixed; top: 0; left: 0; bottom: 0;
+      display: flex; flex-direction: column;
+    }
+    .sidebar-logo {
+      padding: 20px; font-size: 18px; font-weight: bold;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .sidebar-logo span { color: #818cf8; }
+    .sidebar nav { padding: 16px 12px; flex: 1; }
+    .nav-btn {
+      display: block; width: 100%; padding: 10px 14px;
+      background: none; border: none; color: rgba(255,255,255,0.7);
+      text-align: left; border-radius: 8px; cursor: pointer;
+      font-size: 14px; margin-bottom: 4px;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.08); color: white; }
+    .nav-btn.active { background: #4f46e5; color: white; }
+    .sidebar-footer {
+      padding: 16px; border-top: 1px solid rgba(255,255,255,0.1);
+      font-size: 12px; color: rgba(255,255,255,0.5);
+    }
+    .logout-btn {
+      background: none; border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.6); padding: 7px 14px;
+      border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 8px;
+    }
+    .logout-btn:hover { background: rgba(255,0,0,0.2); color: white; }
+
+    .content { margin-left: 220px; padding: 28px; min-height: 100vh; }
+    .content-header { margin-bottom: 24px; }
+    .content-header h1 { font-size: 22px; color: #1a1a2e; }
+    .content-header p { color: #6b7280; font-size: 13px; margin-top: 4px; }
+
+    .tab { display: none; }
+    .tab.active { display: block; animation: fadeIn 0.25s; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card {
+      background: white; border-radius: 10px; padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .stat-card .label { font-size: 12px; color: #6b7280; margin-bottom: 8px; }
+    .stat-card .value { font-size: 28px; font-weight: bold; color: #1a1a2e; }
+    .stat-card .change { font-size: 12px; margin-top: 6px; }
+    .up { color: #10b981; } .down { color: #ef4444; }
+
+    .table-card {
+      background: white; border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: hidden;
+    }
+    .table-card-header {
+      padding: 16px 20px; border-bottom: 1px solid #f3f4f6;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .table-card-header h3 { font-size: 15px; }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      background: #f9fafb; padding: 10px 16px; text-align: left;
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280;
+    }
+    td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid #f3f4f6; }
+    tr:last-child td { border: none; }
+    tr:hover td { background: #f9fafb; }
+
+    .badge {
+      display: inline-block; padding: 2px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+    }
+    .badge.active { background: #d1fae5; color: #065f46; }
+    .badge.inactive { background: #fee2e2; color: #991b1b; }
+    .badge.pending { background: #fef3c7; color: #92400e; }
+
+    .form-card {
+      background: white; border-radius: 10px;
+      padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); max-width: 600px;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #374151; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 9px 12px; border: 1px solid #d1d5db;
+      border-radius: 7px; font-size: 13px; font-family: Arial; outline: none;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: #4f46e5; }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .btn { padding: 9px 20px; border-radius: 7px; border: none; font-size: 13px; cursor: pointer; font-weight: 600; }
+    .btn-primary { background: #4f46e5; color: white; }
+    .btn-primary:hover { background: #3730a3; }
+    .btn-danger { background: #ef4444; color: white; margin-left: 8px; }
+    .btn-danger:hover { background: #b91c1c; }
+
+    .settings-section { margin-bottom: 24px; }
+    .settings-section h3 { font-size: 14px; font-weight: 700; margin-bottom: 14px; color: #374151; }
+    .setting-row {
+      background: white; border-radius: 8px; padding: 14px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .setting-row-info .title { font-size: 13px; font-weight: 600; }
+    .setting-row-info .desc { font-size: 11px; color: #6b7280; margin-top: 2px; }
+    .toggle {
+      width: 42px; height: 24px; background: #d1d5db;
+      border-radius: 12px; cursor: pointer; position: relative; transition: background 0.2s;
+    }
+    .toggle.on { background: #4f46e5; }
+    .toggle::after {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 18px; height: 18px; background: white; border-radius: 50%; transition: left 0.2s;
+    }
+    .toggle.on::after { left: 21px; }
+
+    .chart-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .chart-row-label { font-size: 12px; color: #6b7280; width: 60px; text-align: right; }
+    .chart-row-bar-wrap { flex: 1; background: #f3f4f6; border-radius: 4px; height: 10px; overflow: hidden; }
+    .chart-row-bar { height: 100%; background: #4f46e5; border-radius: 4px; }
+    .chart-row-val { font-size: 12px; font-weight: 600; width: 40px; }
+
+    .msg-item {
+      background: white; border-radius: 8px; padding: 14px 16px;
+      margin-bottom: 8px; display: flex; gap: 12px; align-items: flex-start;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .msg-avatar {
+      width: 36px; height: 36px; border-radius: 50%; background: #4f46e5;
+      color: white; font-weight: bold; font-size: 14px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .msg-name { font-size: 13px; font-weight: 700; }
+    .msg-text { font-size: 12px; color: #6b7280; margin-top: 3px; }
+    .msg-time { font-size: 11px; color: #9ca3af; margin-left: auto; flex-shrink: 0; }
+    .msg-unread .msg-name::after { content: ' 🔵'; font-size: 9px; }
+  </style>
 </head>
 <body>
 
-<div class="panel">
-    <h2>Yönetim Paneli</h2>
-    <p style="font-size: 12px; color: #6b7a99;">Değişiklikler anında kaydedilir.</p>
-    
-    <label>Zeka Yazısı:</label>
-    <input type="text" id="iqInput" placeholder="Örn: 500 IQ">
+<!-- GİRİŞ -->
+<div id="login-page">
+  <div class="login-box">
+    <h2>🔐 Admin Girişi</h2>
+    <input type="text" id="username" placeholder="Kullanıcı Adı"/>
+    <input type="password" id="password" placeholder="Şifre"/>
+    <button onclick="login()">Giriş Yap</button>
+    <div class="login-error" id="login-error">Kullanıcı adı veya şifre hatalı!</div>
+    <p style="font-size:11px;color:#9ca3af;margin-top:14px;">Kullanıcı: admin &nbsp;|&nbsp; Şifre: 1234</p>
+  </div>
+</div>
 
-    <label>Hoca Notu:</label>
-    <input type="text" id="noteInput" placeholder="Örn: Çok Zeki!">
+<!-- PANEL -->
+<div id="panel-page">
+  <div class="sidebar">
+    <div class="sidebar-logo">⚡ <span>Hüseyinistan</span></div>
+    <nav>
+      <button class="nav-btn active" onclick="showTab('dashboard',this)">📊 Dashboard</button>
+      <button class="nav-btn" onclick="showTab('users',this)">👥 Kullanıcılar</button>
+      <button class="nav-btn" onclick="showTab('projects',this)">🚀 Projeler</button>
+      <button class="nav-btn" onclick="showTab('messages',this)">💬 Mesajlar</button>
+      <button class="nav-btn" onclick="showTab('settings',this)">⚙️ Ayarlar</button>
+    </nav>
+    <div class="sidebar-footer">
+      <div>Admin olarak giriş yapıldı</div>
+      <button class="logout-btn" onclick="logout()">🚪 Çıkış Yap</button>
+    </div>
+  </div>
 
-    <button onclick="veriyiKaydet()">Sistemi Güncelle</button>
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="tab active" id="tab-dashboard">
+      <div class="content-header">
+        <h1>Dashboard</h1>
+        <p>Genel istatistikler ve özet</p>
+      </div>
+      <div class="stats">
+        <div class="stat-card"><div class="label">Toplam Ziyaretçi</div><div class="value">1,284</div><div class="change up">↑ %12 bu ay</div></div>
+        <div class="stat-card"><div class="label">Aktif Kullanıcı</div><div class="value">47</div><div class="change up">↑ %5 bu hafta</div></div>
+        <div class="stat-card"><div class="label">Toplam Proje</div><div class="value">8</div><div class="change up">↑ 2 yeni</div></div>
+        <div class="stat-card"><div class="label">Yeni Mesaj</div><div class="value">3</div><div class="change down">Okunmamış</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="table-card">
+          <div class="table-card-header"><h3>📈 Aylık Ziyaretçi</h3></div>
+          <div style="padding:20px;">
+            <div class="chart-row"><span class="chart-row-label">Ocak</span><div class="chart-row-bar-wrap"><div class="chart-row-bar" style="width:60%"></div></div><span class="chart-row-val">604</span></div>
+            <div class="chart-row"><span class="chart-row-label">Şubat</span><div class="chart-row-bar-wrap"><div class="chart-row-bar" style="width:45%"></div></div><span class="chart-row-val">457</span></div>
+            <div class="chart-row"><span class="chart-row-label">Mart</span><div class="chart-row-bar-wrap"><div class="chart-row-bar" style="width:80%"></div></div><span class="chart-row-val">812</span></div>
+            <div class="chart-row"><span class="chart-row-label">Nisan</span><div class="chart-row-bar-wrap"><div class="chart-row-bar" style="width:70%"></div></div><span class="chart-row-val">711</span></div>
+            <div class="chart-row"><span class="chart-row-label">Mayıs</span><div class="chart-row-bar-wrap"><div class="chart-row-bar" style="width:100%"></div></div><span class="chart-row-val">1,284</span></div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-card-header"><h3>🕐 Son İşlemler</h3></div>
+          <table>
+            <thead><tr><th>İşlem</th><th>Kullanıcı</th><th>Zaman</th></tr></thead>
+            <tbody>
+              <tr><td>Giriş yapıldı</td><td>admin</td><td>2 dk önce</td></tr>
+              <tr><td>Proje eklendi</td><td>admin</td><td>1 saat önce</td></tr>
+              <tr><td>Mesaj alındı</td><td>Ahmet K.</td><td>3 saat önce</td></tr>
+              <tr><td>Kullanıcı silindi</td><td>admin</td><td>Dün</td></tr>
+              <tr><td>Ayarlar değişti</td><td>admin</td><td>Dün</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- KULLANICILAR -->
+    <div class="tab" id="tab-users">
+      <div class="content-header"><h1>Kullanıcılar</h1><p>Kayıtlı kullanıcıları yönet</p></div>
+      <div class="table-card" style="margin-bottom:20px;">
+        <div class="table-card-header">
+          <h3>👥 Kullanıcı Listesi</h3>
+          <button class="btn btn-primary" onclick="document.getElementById('add-user-form').style.display='block'">+ Yeni Kullanıcı</button>
+        </div>
+        <table>
+          <thead><tr><th>Ad Soyad</th><th>E-posta</th><th>Rol</th><th>Durum</th><th>İşlem</th></tr></thead>
+          <tbody id="user-table-body"></tbody>
+        </table>
+      </div>
+      <div class="form-card" id="add-user-form" style="display:none;">
+        <h3 style="margin-bottom:16px;font-size:15px;">Yeni Kullanıcı Ekle</h3>
+        <div class="form-group"><label>Ad Soyad</label><input type="text" id="new-name" placeholder="Ad Soyad"/></div>
+        <div class="form-group"><label>E-posta</label><input type="email" id="new-email" placeholder="email@ornek.com"/></div>
+        <div class="form-group"><label>Rol</label><select id="new-role"><option>Kullanıcı</option><option>Editör</option><option>Admin</option></select></div>
+        <button class="btn btn-primary" onclick="addUser()">Ekle</button>
+        <button class="btn" style="background:#f3f4f6;margin-left:8px;" onclick="document.getElementById('add-user-form').style.display='none'">İptal</button>
+      </div>
+    </div>
+
+    <!-- PROJELER -->
+    <div class="tab" id="tab-projects">
+      <div class="content-header"><h1>Projeler</h1><p>Portföy projelerini yönet</p></div>
+      <div class="table-card" style="margin-bottom:20px;">
+        <div class="table-card-header">
+          <h3>🚀 Proje Listesi</h3>
+          <button class="btn btn-primary" onclick="document.getElementById('add-project-form').style.display='block'">+ Yeni Proje</button>
+        </div>
+        <table>
+          <thead><tr><th>Proje Adı</th><th>Teknoloji</th><th>Durum</th><th>İşlem</th></tr></thead>
+          <tbody id="project-table-body"></tbody>
+        </table>
+      </div>
+      <div class="form-card" id="add-project-form" style="display:none;">
+        <h3 style="margin-bottom:16px;font-size:15px;">Yeni Proje Ekle</h3>
+        <div class="form-group"><label>Proje Adı</label><input type="text" id="new-proj-name" placeholder="Proje adı"/></div>
+        <div class="form-group"><label>Teknoloji</label><input type="text" id="new-proj-tech" placeholder="HTML, CSS, JS..."/></div>
+        <div class="form-group"><label>Açıklama</label><textarea id="new-proj-desc" placeholder="Kısa açıklama..."></textarea></div>
+        <div class="form-group"><label>Durum</label><select id="new-proj-status"><option>Aktif</option><option>Geliştiriliyor</option><option>Tamamlandı</option></select></div>
+        <button class="btn btn-primary" onclick="addProject()">Ekle</button>
+        <button class="btn" style="background:#f3f4f6;margin-left:8px;" onclick="document.getElementById('add-project-form').style.display='none'">İptal</button>
+      </div>
+    </div>
+
+    <!-- MESAJLAR -->
+    <div class="tab" id="tab-messages">
+      <div class="content-header"><h1>Mesajlar</h1><p>Gelen iletişim mesajları</p></div>
+      <div class="msg-item msg-unread"><div class="msg-avatar">A</div><div><div class="msg-name">Ahmet Yılmaz</div><div class="msg-text">Merhaba, projenle ilgili birkaç sorum var.</div></div><div class="msg-time">1 saat önce</div></div>
+      <div class="msg-item msg-unread"><div class="msg-avatar" style="background:#10b981;">M</div><div><div class="msg-name">Mehmet Demir</div><div class="msg-text">Web siteni gördüm, çok başarılı olmuş!</div></div><div class="msg-time">3 saat önce</div></div>
+      <div class="msg-item msg-unread"><div class="msg-avatar" style="background:#f59e0b;">Z</div><div><div class="msg-name">Zeynep Kaya</div><div class="msg-text">Projenizde işbirliği yapabilir miyiz?</div></div><div class="msg-time">Dün</div></div>
+      <div class="msg-item"><div class="msg-avatar" style="background:#6b7280;">E</div><div><div class="msg-name">Emre Şahin</div><div class="msg-text">GitHub reponu inceledim, harika!</div></div><div class="msg-time">2 gün önce</div></div>
+      <div class="msg-item"><div class="msg-avatar" style="background:#ef4444;">S</div><div><div class="msg-name">Selin Arslan</div><div class="msg-text">Bir proje teklif etmek istiyorum.</div></div><div class="msg-time">3 gün önce</div></div>
+    </div>
+
+    <!-- AYARLAR -->
+    <div class="tab" id="tab-settings">
+      <div class="content-header"><h1>Ayarlar</h1><p>Site ve hesap ayarları</p></div>
+      <div class="settings-section">
+        <h3>🌐 Site Ayarları</h3>
+        <div class="setting-row"><div class="setting-row-info"><div class="title">Siteyi Yayınla</div><div class="desc">Site herkese açık görünsün</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-row"><div class="setting-row-info"><div class="title">Yorumları Aç</div><div class="desc">Ziyaretçiler yorum yapabilsin</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-row"><div class="setting-row-info"><div class="title">İletişim Formu</div><div class="desc">Mesaj gönderme aktif olsun</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+      </div>
+      <div class="settings-section">
+        <h3>🔔 Bildirim Ayarları</h3>
+        <div class="setting-row"><div class="setting-row-info"><div class="title">E-posta Bildirimi</div><div class="desc">Yeni mesajlarda bildir</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-row"><div class="setting-row-info"><div class="title">Günlük Rapor</div><div class="desc">Günlük istatistik gönder</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+      </div>
+      <div class="form-card">
+        <h3 style="margin-bottom:16px;font-size:14px;font-weight:700;">🔑 Şifre Değiştir</h3>
+        <div class="form-group"><label>Mevcut Şifre</label><input type="password" placeholder="••••"/></div>
+        <div class="form-group"><label>Yeni Şifre</label><input type="password" placeholder="••••"/></div>
+        <div class="form-group"><label>Tekrar</label><input type="password" placeholder="••••"/></div>
+        <button class="btn btn-primary" onclick="alert('Şifre güncellendi!')">Kaydet</button>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <script>
-    function veriyiKaydet() {
-        const iq = document.getElementById('iqInput').value;
-        const not = document.getElementById('noteInput').value;
+  let users = [
+    { id:1, name:"Hüseyin Şerif Keleş", email:"keleshusein3@gmail.com", role:"Admin", status:"active" },
+    { id:2, name:"Ahmet Yılmaz", email:"ahmet@mail.com", role:"Kullanıcı", status:"active" },
+    { id:3, name:"Mehmet Demir", email:"mehmet@mail.com", role:"Editör", status:"inactive" },
+  ];
+  let projects = [
+    { id:1, name:"Hüseyinistan Games", tech:"HTML, CSS, JS", status:"Aktif" },
+    { id:2, name:"Portfolyo Sitesi", tech:"HTML, CSS, JS", status:"Tamamlandı" },
+    { id:3, name:"Batman MTAL Projesi", tech:"Python", status:"Geliştiriliyor" },
+  ];
 
-        if(iq) localStorage.setItem('siteIQ', iq);
-        if(not) localStorage.setItem('siteNot', not);
-
-        alert("Ayarlar kaydedildi! Ana sayfaya gidip bakabilirsin.");
+  function login() {
+    const u = document.getElementById('username').value;
+    const p = document.getElementById('password').value;
+    if (u === 'admin' && p === '1234') {
+      document.getElementById('login-page').style.display = 'none';
+      document.getElementById('panel-page').style.display = 'block';
+      renderUsers(); renderProjects();
+    } else {
+      document.getElementById('login-error').style.display = 'block';
     }
-</script>
+  }
+  document.addEventListener('keydown', e => { if(e.key==='Enter') login(); });
 
+  function logout() {
+    document.getElementById('panel-page').style.display = 'none';
+    document.getElementById('login-page').style.display = 'flex';
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+  }
+
+  function showTab(name, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function renderUsers() {
+    document.getElementById('user-table-body').innerHTML = users.map(u => `
+      <tr>
+        <td><strong>${u.name}</strong></td>
+        <td>${u.email}</td>
+        <td>${u.role}</td>
+        <td><span class="badge ${u.status==='active'?'active':'inactive'}">${u.status==='active'?'Aktif':'Pasif'}</span></td>
+        <td><button class="btn btn-danger" style="padding:4px 10px;font-size:11px;" onclick="deleteUser(${u.id})">Sil</button></td>
+      </tr>`).join('');
+  }
+
+  function addUser() {
+    const name = document.getElementById('new-name').value.trim();
+    const email = document.getElementById('new-email').value.trim();
+    const role = document.getElementById('new-role').value;
+    if (!name || !email) { alert('Ad ve e-posta zorunlu!'); return; }
+    users.push({ id: Date.now(), name, email, role, status:'active' });
+    renderUsers();
+    document.getElementById('new-name').value = '';
+    document.getElementById('new-email').value = '';
+    document.getElementById('add-user-form').style.display = 'none';
+  }
+
+  function deleteUser(id) {
+    if (!confirm('Bu kullanıcıyı silmek istiyor musun?')) return;
+    users = users.filter(u => u.id !== id);
+    renderUsers();
+  }
+
+  function renderProjects() {
+    document.getElementById('project-table-body').innerHTML = projects.map(p => `
+      <tr>
+        <td><strong>${p.name}</strong></td>
+        <td>${p.tech}</td>
+        <td><span class="badge ${p.status==='Aktif'?'active':p.status==='Geliştiriliyor'?'pending':'inactive'}">${p.status}</span></td>
+        <td><button class="btn btn-danger" style="padding:4px 10px;font-size:11px;" onclick="deleteProject(${p.id})">Sil</button></td>
+      </tr>`).join('');
+  }
+
+  function addProject() {
+    const name = document.getElementById('new-proj-name').value.trim();
+    const tech = document.getElementById('new-proj-tech').value.trim();
+    const status = document.getElementById('new-proj-status').value;
+    if (!name) { alert('Proje adı zorunlu!'); return; }
+    projects.push({ id: Date.now(), name, tech, status });
+    renderProjects();
+    document.getElementById('new-proj-name').value = '';
+    document.getElementById('new-proj-tech').value = '';
+    document.getElementById('add-project-form').style.display = 'none';
+  }
+
+  function deleteProject(id) {
+    if (!confirm('Bu projeyi silmek istiyor musun?')) return;
+    projects = projects.filter(p => p.id !== id);
+    renderProjects();
+  }
+</script>
 </body>
 </html>
