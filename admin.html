@@ -2,35 +2,123 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Hüseyin Yönetim Paneli</title>
+    <title>Hüseyin Portfolio | Yönetim Paneli</title>
     <style>
-        body { background: #080c14; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .panel { background: #141d2e; padding: 40px; border-radius: 25px; border: 1px solid #00d4ff; width: 350px; text-align: center; box-shadow: 0 0 30px rgba(0,212,255,0.1); }
-        h2 { color: #00d4ff; font-size: 24px; margin-bottom: 20px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; background: #080c14; border: 1px solid #1f2937; color: white; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 15px; background: #00d4ff; color: #080c14; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 15px; }
-        button:hover { background: #00b8e6; }
-        .info { color: #6b7a99; font-size: 12px; margin-top: 20px; }
+        :root { --p-accent: #00d4ff; --p-bg: #080c14; --p-card: #141d2e; }
+        body { background: var(--p-bg); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; padding: 20px; }
+        .container { background: var(--p-card); padding: 30px; border-radius: 20px; border: 1px solid rgba(0,212,255,0.2); width: 100%; max-width: 700px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .hidden { display: none; }
+        h2 { color: var(--p-accent); text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+        .section { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid var(--p-accent); }
+        label { display: block; font-size: 11px; color: #6b7a99; margin-top: 10px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 12px; margin-top: 5px; background: #080c14; border: 1px solid #1f2937; color: white; border-radius: 8px; box-sizing: border-box; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        button { width: 100%; padding: 15px; background: var(--p-accent); color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        button:hover { filter: brightness(1.2); transform: translateY(-2px); }
+        .toggle-box { display: flex; align-items: center; gap: 10px; margin-top: 10px; background: #0a101a; padding: 10px; border-radius: 8px; }
+        input[type="checkbox"] { width: auto; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="panel">
-        <h2>Sistem Yönetimi</h2>
-        <input type="text" id="iqInput" placeholder="IQ Değeri (Örn: 500 IQ)">
-        <input type="text" id="notInput" placeholder="Alt Yazı (Örn: Hocadan Zeki!)">
-        <button onclick="kaydet()">SİSTEMİ GÜNCELLE</button>
-        <div class="info">Değişiklik yaptıktan sonra ana sayfayı yenileyin.</div>
+
+    <div id="auth" class="container" style="max-width: 400px; text-align: center;">
+        <h2 style="color: #ff6b6b;">SİSTEM KİLİTLİ</h2>
+        <p style="color:#6b7a99; font-size: 13px;">Devam etmek için yönetici şifresini girin.</p>
+        <input type="password" id="pass" placeholder="Şifre (btmal)">
+        <button onclick="checkAuth()" style="background:#ff6b6b; color:white;">ERİŞİM SAĞLA</button>
+    </div>
+
+    <div id="panel" class="container hidden">
+        <h2>PORTFOLYO YÖNETİMİ</h2>
+
+        <div class="section">
+            <label>SİTE ANA RENGİ (Neon Etkisi):</label>
+            <input type="color" id="c_color" value="#00d4ff">
+        </div>
+
+        <div class="section">
+            <label>ANA BAŞLIK (İLK KISIM):</label>
+            <input type="text" id="c_h1" placeholder="DÜNYANIN EN">
+            <label>VURGULU BAŞLIK (RENKLİ KISIM):</label>
+            <input type="text" id="c_span" placeholder="YETENEKLİSİ.">
+        </div>
+
+        <div class="section">
+            <div class="grid">
+                <div><label>IQ SKORU:</label><input type="text" id="c_iq"></div>
+                <div><label>IQ ETİKETİ:</label><input type="text" id="c_iq_l"></div>
+            </div>
+            <div class="toggle-box">
+                <input type="checkbox" id="c_iq_show"> <label>IQ Kartını Sitede Göster</label>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="grid">
+                <div><label>YARATICILIK:</label><input type="text" id="c_crea"></div>
+                <div><label>ETİKET:</label><input type="text" id="c_crea_l"></div>
+            </div>
+            <div class="toggle-box">
+                <input type="checkbox" id="c_crea_show"> <label>Yaratıcılık Kartını Sitede Göster</label>
+            </div>
+        </div>
+
+        <div class="section">
+            <label>HAKKIMDA (BİO) METNİ:</label>
+            <textarea id="c_bio" style="height: 100px;"></textarea>
+        </div>
+
+        <div class="section">
+            <label>FOOTER İSİM:</label>
+            <input type="text" id="c_ftr_n">
+            <label>FOOTER ALT MESAJ:</label>
+            <input type="text" id="c_ftr_m">
+        </div>
+
+        <button onclick="applyChanges()">SİTEYİ GÜNCELLE VE KAYDET</button>
     </div>
 
     <script>
-        function kaydet() {
-            const iqVal = document.getElementById('iqInput').value;
-            const notVal = document.getElementById('notInput').value;
+        const store = (k, v) => localStorage.setItem('hp_' + k, v);
+        const get = (k) => localStorage.getItem('hp_' + k);
 
-            if(iqVal) localStorage.setItem('siteIQ', iqVal);
-            if(notVal) localStorage.setItem('siteNOT', notVal);
+        function checkAuth() {
+            if(document.getElementById('pass').value === 'btmal') {
+                document.getElementById('auth').classList.add('hidden');
+                document.getElementById('panel').classList.remove('hidden');
+                loadCurrentValues();
+            } else { alert('Hatalı Şifre!'); }
+        }
 
-            alert("Veriler tarayıcıya kaydedildi! Şimdi ana sayfaya gidip bakabilirsin.");
+        function loadCurrentValues() {
+            document.getElementById('c_color').value = get('color') || '#00d4ff';
+            document.getElementById('c_h1').value = get('h1') || 'DÜNYANIN EN';
+            document.getElementById('c_span').value = get('span') || 'YETENEKLİSİ.';
+            document.getElementById('c_iq').value = get('iq') || '200 IQ';
+            document.getElementById('c_iq_l').value = get('iq_l') || 'Zeka Seviyesi';
+            document.getElementById('c_iq_show').checked = get('iq_show') !== 'false';
+            document.getElementById('c_crea').value = get('crea') || '∞';
+            document.getElementById('c_crea_l').value = get('crea_l') || 'Yaratıcılık';
+            document.getElementById('c_crea_show').checked = get('crea_show') !== 'false';
+            document.getElementById('c_bio').value = get('bio') || '';
+            document.getElementById('c_ftr_n').value = get('ftr_n') || 'Hüseyin Şerif Keleş';
+            document.getElementById('c_ftr_m').value = get('ftr_m') || '⚡ Yapay Zeka tarafından yapılmıştır';
+        }
+
+        function applyChanges() {
+            store('color', document.getElementById('c_color').value);
+            store('h1', document.getElementById('c_h1').value);
+            store('span', document.getElementById('c_span').value);
+            store('iq', document.getElementById('c_iq').value);
+            store('iq_l', document.getElementById('c_iq_l').value);
+            store('iq_show', document.getElementById('c_iq_show').checked);
+            store('crea', document.getElementById('c_crea').value);
+            store('crea_l', document.getElementById('c_crea_l').value);
+            store('crea_show', document.getElementById('c_crea_show').checked);
+            store('bio', document.getElementById('c_bio').value);
+            store('ftr_n', document.getElementById('c_ftr_n').value);
+            store('ftr_m', document.getElementById('c_ftr_m').value);
+            alert('Sistem Güncellendi! index.html sayfasını yenileyin.');
         }
     </script>
 </body>
