@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistem Yönetimi</title>
+    <style>
+        body { background: #080c14; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .panel { background: #141d2e; padding: 30px; border-radius: 20px; border: 1px solid #00d4ff; width: 350px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #080c14; border: 1px solid #1f2937; color: white; border-radius: 8px; }
+        button { width: 100%; padding: 12px; background: #00d4ff; color: #080c14; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        h2 { color: #00d4ff; margin-top: 0; }
+    </style>
+</head>
+<body>
+
+<div class="panel">
+    <h2>Yönetim Paneli</h2>
+    <p style="font-size: 12px; color: #6b7a99;">Değişiklikler anında kaydedilir.</p>
+    
+    <label>Zeka Yazısı:</label>
+    <input type="text" id="iqInput" placeholder="Örn: 500 IQ">
+
+    <label>Hoca Notu:</label>
+    <input type="text" id="noteInput" placeholder="Örn: Çok Zeki!">
+
+    <button onclick="veriyiKaydet()">Sistemi Güncelle</button>
+</div>
+
+<script>
+    function veriyiKaydet() {
+        const iq = document.getElementById('iqInput').value;
+        const not = document.getElementById('noteInput').value;
+
+        if(iq) localStorage.setItem('siteIQ', iq);
+        if(not) localStorage.setItem('siteNot', not);
+
+        alert("Ayarlar kaydedildi! Ana sayfaya gidip bakabilirsin.");
+    }
+</script>
+
+</body>
+</html>
